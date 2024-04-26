@@ -36,35 +36,36 @@ const createScene = async () => {
 	// groundHeightMap.material.wireframe = true;
 
 	/* Text */
-	const spellFont = await (await fetch("/public/assets/First_Order_Plain_Regular.json")).json();
+	const spellFont = await (
+		await fetch("/public/assets/First_Order_Plain_Regular.json")
+	).json();
 	const sampleText = new BABYLON.MeshBuilder.CreateText(
 		"aText",
 		"Textual text",
 		spellFont,
 		{
 			size: 2,
+			depth: 0.1,
+			resolution: 100,
 		}
 	);
 
 	return scene;
 };
 
-// const mainScene = createScene().then(() => {
-// 	engine.runRenderLoop(() => {
-// 		mainScene.render();
-// 	});
-// }, (err) => {
-// 	console.log(err);
-// })
-
-var scene = createScene();
-scene.then((scene)=>{
-	engine.runRenderLoop(function () {
-		if (scene) {
-			scene.render();
-		}
-	});
-})
+var mainScene = createScene();
+mainScene.then(
+	(scene) => {
+		engine.runRenderLoop(function () {
+			if (scene) {
+				scene.render();
+			}
+		});
+	},
+	(err) => {
+		console.log(err);
+	}
+);
 
 window.addEventListener("resize", () => {
 	engine.resize();
