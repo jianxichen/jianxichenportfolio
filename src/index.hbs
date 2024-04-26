@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -8,37 +7,11 @@
     <title>Welcome to my portfolio</title>
 
     <!-- import the webpage's stylesheet -->
-    <link rel="stylesheet" href="/style.css" />   
+    <link rel="stylesheet" href="/public/style.css" />
   </head>
   <body>
-        
+
     <canvas id="main-scene"></canvas>
-    
-    <script src="https://cdn.babylonjs.com/babylon.js"></script>
-    <script type="text/javascript">
-      const canvas = document.getElementById("main-scene");
-      const engine = new BABYLON.Engine(canvas);
-
-      const createScene = function() {
-        const scene = new BABYLON.Scene(engine);
-        scene.createDefaultCameraOrLight(true, false, true);
-        
-        const sphere = new BABYLON.MeshBuilder.CreateSphere('aSphere', {
-          segments: 1,
-          diameter: .1
-        }, scene);
-        
-        return scene;
-      }
-
-      const mainScene = createScene();
-      engine.runRenderLoop(function() {
-        mainScene.render();
-      });
-      
-      window.addEventListener('resize', function() {
-        engine.resize();
-      });
-    </script>
+    <script type="module" src="/public/scripts/wizardry.js"></script>
   </body>
 </html>

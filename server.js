@@ -1,4 +1,5 @@
 const path = require("path");
+const fastifyStatic = require('@fastify/static');
 
 // Require the fastify framework and instantiate it
 const fastify = require("fastify")({
@@ -7,10 +8,20 @@ const fastify = require("fastify")({
 });
 
 // Setup our static files
-fastify.register(require("@fastify/static"), {
+fastify.register(fastifyStatic, {
   root: path.join(__dirname, "public"),
-  prefix: "/", // optional: default '/'
+  prefix: "/public/", // virtual URL mount path prefix the static directory 
 });
+fastify.register(fastifyStatic, {
+  root: path.join(__dirname, 'node_modules'),
+  prefix: '/node_modules/',
+  decorateReply: false
+})
+fastify.register(fastifyStatic, {
+  root: path.join(__dirname, 'src'),
+  prefix: '/src/',
+  decorateReply: false // the reply decorator has been added by the first plugin registration
+})
 // Will need to serve BabylonJS libraries in static for client
 
 // fastify-formbody lets us parse incoming forms
@@ -43,8 +54,12 @@ fastify.post("/", function (request, reply) {
 });
 
 // Run the server and report out to the logs
+let port = process.env.PORT != null ? "0.0.0.0" : "127.0.0.1";
 fastify.listen(
-  { port: process.env.PORT, host: "0.0.0.0" },
+  {
+    port: process.env.PORT || 8080,
+    host: "127.0.0.1",
+  },
   function (err, address) {
     if (err) {
       console.error(err);
