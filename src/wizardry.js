@@ -16,11 +16,11 @@ const createScene = function () {
     scene
   );
 
-  const box = new BABYLON.MeshBuilder.CreateBox("aBox", {
-    size: 0.1,
-    width: 2,
-    faceColors: [new BABYLON.Color4(1,0,0,1)]
-  }, scene);
+  // const box = new BABYLON.MeshBuilder.CreateBox("aBox", {
+  //   size: 0.1,
+  //   width: 2,
+  //   faceColors: [new BABYLON.Color4(1,0,0,1)]
+  // }, scene);
 
   return scene;
 };

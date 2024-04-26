@@ -4,8 +4,9 @@
     "description": "A simple Node app built on fastify, instantly up and running.",
     "main": "server.js",
     "scripts": {
-        "build": "esbuild src/wizardry.js --bundle --outfile=src/bundle.js",
-        "start": "nodemon server.js"
+        "start": "nodemon --ignore '*bundle.js' --exec npm run build && sleep && npm run deploy",
+        "build": "esbuild src/wizardry.js --bundle --outfile=public/bundle.js",
+        "deploy": "node server.js"
     },
     "dependencies": {
         "@babylonjs/core": "^7.3.2",
