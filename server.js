@@ -1,13 +1,17 @@
-const path = require("path");
-const fastifyStatic = require('@fastify/static');
+import path from "path";
+import { fileURLToPath } from 'url';
+import fastifyStatic from "@fastify/static";
+import Fastify from 'fastify';
 
 // Require the fastify framework and instantiate it
-const fastify = require("fastify")({
+const fastify = Fastify({
   // set this to true for detailed logging:
   logger: false,
 });
 
 // Setup our static files
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 fastify.register(fastifyStatic, {
   root: path.join(__dirname, "public"),
   prefix: "/public/", // virtual URL mount path prefix the static directory 
@@ -25,12 +29,15 @@ fastify.register(fastifyStatic, {
 // Will need to serve BabylonJS libraries in static for client
 
 // fastify-formbody lets us parse incoming forms
-fastify.register(require("@fastify/formbody"));
+import fastifyFormbody from '@fastify/formbody';
+fastify.register(fastifyFormbody);
 
 // point-of-view is a templating manager for fastify
-fastify.register(require("@fastify/view"), {
+import fastifyView from "@fastify/view";
+import handlebars from "handlebars";
+fastify.register(fastifyView, {
   engine: {
-    handlebars: require("handlebars"),
+    handlebars: handlebars,
   },
 });
 

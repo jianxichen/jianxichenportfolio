@@ -13,6 +13,7 @@
 		"@fastify/formbody": "^7.4.0",
 		"@fastify/static": "^7.0.3",
 		"@fastify/view": "^9.0.0",
+		"earcut": "^2.2.4",
 		"fastify": "^4.26.2",
 		"handlebars": "^4.7.8"
 	},
@@ -35,5 +36,6 @@
 		"events": {
 			"exit": "npm run build"
 		}
-	}
+	},
+	"type": "module"
 }
