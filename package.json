@@ -10,6 +10,7 @@
 	},
 	"dependencies": {
 		"@babylonjs/core": "^7.3.2",
+		"@babylonjs/loaders": "^7.5.0",
 		"@fastify/formbody": "^7.4.0",
 		"@fastify/static": "^7.0.3",
 		"@fastify/view": "^9.0.0",
