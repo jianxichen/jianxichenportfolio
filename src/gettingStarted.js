@@ -1,7 +1,6 @@
 import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Debug/debugLayer";
-import { Inspector } from "@babylonjs/inspector";
 
 const canvas = document.getElementById("main-scene");
 const engine = new BABYLON.Engine(canvas);
@@ -301,7 +300,10 @@ var mainScene = await createScene();
 
 engine.runRenderLoop(function () {
 	mainScene.render();
-	mainScene.debugLayer.show();
+	// No need to import inspector library
+	mainScene.debugLayer.show({
+		embedMode: true,
+	});
 });
 
 window.addEventListener("resize", () => {
