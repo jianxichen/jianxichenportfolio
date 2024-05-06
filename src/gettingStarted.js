@@ -299,24 +299,9 @@ const createScene = async () => {
 
 var mainScene = await createScene();
 
-// mainScene.then(
-// 	(scene) => {
-// 		engine.runRenderLoop(function () {
-// 			if (scene) {
-// 				scene.render();
-// 				scene.debugLayer.show();
-// 			}
-// 		});
-// 	},
-// 	(err) => {
-// 		console.log(err);
-// 	}
-// );
-
 engine.runRenderLoop(function () {
 	mainScene.render();
 	mainScene.debugLayer.show();
-	// Inspector.Show(mainScene, {});
 });
 
 window.addEventListener("resize", () => {
