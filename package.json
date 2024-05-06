@@ -5,7 +5,7 @@
 	"main": "server.js",
 	"scripts": {
 		"start": "npm run build && nodemon",
-		"build": "esbuild src/**/*.js --bundle --outdir=public/scripts/ --format=esm --minify",
+		"build": "esbuild src/**/*.ts --bundle --outdir=public/scripts/ --format=esm --minify",
 		"deploy": "node server.js"
 	},
 	"dependencies": {

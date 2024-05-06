@@ -2,7 +2,7 @@ import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Debug/debugLayer";
 
-const canvas = document.getElementById("main-scene");
+const canvas = <HTMLCanvasElement> document.getElementById("main-scene");
 const engine = new BABYLON.Engine(canvas);
 
 const createScene = async () => {
@@ -86,7 +86,7 @@ const createScene = async () => {
 
 	/* Shape meshs */
 	let shapeWithGizmo;
-	const sphere = new BABYLON.MeshBuilder.CreateSphere(
+	const sphere = BABYLON.MeshBuilder.CreateSphere(
 		"aSphere",
 		{
 			segments: 10,
@@ -95,7 +95,7 @@ const createScene = async () => {
 		scene
 	);
 	sphere.position = new BABYLON.Vector3(2, 3, -3);
-	const sphereMat = new BABYLON.StandardMaterial();
+	const sphereMat = new BABYLON.StandardMaterial("sphereMat");
 	sphereMat.diffuseColor = new BABYLON.Color3(0, 1, 0); // sets color of object in light
 	sphereMat.specularColor = new BABYLON.Color3(1, 0, 1); // sets color of light spot
 	sphereMat.ambientColor = new BABYLON.Color3(1, 1, 0); // sets max possible ambient color
@@ -103,7 +103,7 @@ const createScene = async () => {
 	sphereMat.emissiveColor = new BABYLON.Color3(1, 0, 0); // sets color of object w/o light
 	sphereMat.alpha = 1; // opacity
 	sphereMat.diffuseTexture = new BABYLON.Texture("/public/assets/wood.jpg"); // texture req. light
-	sphereMat.emissiveTextureTexture = new BABYLON.Texture(
+	sphereMat.emissiveTexture = new BABYLON.Texture(
 		"/public/assets/wood.jpg"
 	); // no req. light
 	sphere.material = sphereMat;
@@ -122,7 +122,7 @@ const createScene = async () => {
 	// 	},
 	// 	scene
 	// );
-	// const boxMat = new BABYLON.StandardMaterial();
+	// const boxMat = new BABYLON.StandardMaterial("boxMat");
 	// boxMat.emissiveTexture = new BABYLON.Texture("/public/assets/wood.jpg");
 	// box.material = boxMat;
 	// box.position = new BABYLON.Vector3(5, 0, 0);
@@ -173,22 +173,24 @@ const createScene = async () => {
 	lightGizmo.light = lightWithGizmo;
 
 	/* Ground meshs */
-	const groundHeightMap = new BABYLON.MeshBuilder.CreateGroundFromHeightMap(
+	const groundHeightMap = BABYLON.MeshBuilder.CreateGroundFromHeightMap(
 		"hMap",
 		"/public/assets/city_height_map.png",
 		{
 			height: 10,
 			width: 10,
 			subdivisions: 1000,
-		}
+		},
+		scene
 	);
 	groundHeightMap.receiveShadows = true;
-	const grndHgtMat = new BABYLON.StandardMaterial();
-	grndHgtMat.diffuseTexture = new BABYLON.Texture("/public/assets/wood.jpg");
-	grndHgtMat.diffuseTexture.uOffset = 0.5; // horizontal texture offset
-	grndHgtMat.diffuseTexture.vOffset = 0.5; // vertical texture offset
-	grndHgtMat.diffuseTexture.uScale = 1; // horizontal scale texture
-	grndHgtMat.diffuseTexture.vScale = 1; // vertical scale texture
+	const grndHgtMat = new BABYLON.StandardMaterial("grndHgtMat");
+	let texture = new BABYLON.Texture("/public/assets/wood.jpg");
+	texture.uOffset = 0.5; // horizontal texture offset
+	texture.vOffset = 0.5; // vertical texture offset
+	texture.uScale = 1; // horizontal scale texture
+	texture.vScale = 1; // vertical scale texture
+	grndHgtMat.diffuseTexture = texture
 	groundHeightMap.material = grndHgtMat;
 	groundHeightMap.material.wireframe = true;
 
@@ -277,7 +279,7 @@ const createScene = async () => {
 			const r = Math.random(),
 				g = Math.random(),
 				b = Math.random();
-			hit.pickedMesh.material.emissiveColor = new BABYLON.Color3(r, g, b);
+			(<BABYLON.StandardMaterial> hit.pickedMesh.material).emissiveColor = new BABYLON.Color3(r, g, b);
 		}
 	};
 
@@ -298,7 +300,7 @@ const createScene = async () => {
 
 var mainScene = await createScene();
 
-engine.runRenderLoop(function () {
+engine.runRenderLoop(() => {
 	mainScene.render();
 	// No need to import inspector library
 	mainScene.debugLayer.show({

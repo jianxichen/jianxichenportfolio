@@ -45,6 +45,7 @@ fastify.get("/", function (request, reply) {
 	let params = {
 		greeting: "Hello Node!",
 		path: "/public/",
+		jsFile: "SushiOrder"
 	};
 	return reply.view("/src/index.hbs", params);
 });
