@@ -145,7 +145,7 @@ const createScene = async () => {
 
 	BABYLON.SceneLoader.ImportMeshAsync(
 		null, // null or "" imports all mesh, else looks for specific
-		"/public/assets/",
+		"/public/assets/models/",
 		"Cow.gltf",
 		scene
 	).then((result) => {
