@@ -1,7 +1,7 @@
 import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Debug/debugLayer";
-import "@babylonjs/inspector";
+import { Inspector } from "@babylonjs/inspector";
 
 const canvas = document.getElementById("main-scene");
 const engine = new BABYLON.Engine(canvas);
@@ -297,20 +297,27 @@ const createScene = async () => {
 	return scene;
 };
 
-var mainScene = createScene();
-mainScene.then(
-	(scene) => {
-		engine.runRenderLoop(function () {
-			if (scene) {
-				scene.render();
-				scene.debugLayer.show();
-			}
-		});
-	},
-	(err) => {
-		console.log(err);
-	}
-);
+var mainScene = await createScene();
+
+// mainScene.then(
+// 	(scene) => {
+// 		engine.runRenderLoop(function () {
+// 			if (scene) {
+// 				scene.render();
+// 				scene.debugLayer.show();
+// 			}
+// 		});
+// 	},
+// 	(err) => {
+// 		console.log(err);
+// 	}
+// );
+
+engine.runRenderLoop(function () {
+	mainScene.render();
+	mainScene.debugLayer.show();
+	// Inspector.Show(mainScene, {});
+});
 
 window.addEventListener("resize", () => {
 	engine.resize();
