@@ -9,7 +9,8 @@
 		"deploy": "node server.js"
 	},
 	"dependencies": {
-		"@babylonjs/core": "^7.3.2",
+		"@babylonjs/core": "^7.5.0",
+		"@babylonjs/inspector": "^7.5.0",
 		"@babylonjs/loaders": "^7.5.0",
 		"@fastify/formbody": "^7.4.0",
 		"@fastify/static": "^7.0.3",

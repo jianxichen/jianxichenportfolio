@@ -1,5 +1,7 @@
 import * as BABYLON from "@babylonjs/core";
-import "@babylonjs/loaders/glTF"
+import "@babylonjs/loaders/glTF";
+import "@babylonjs/core/Debug/debugLayer";
+import "@babylonjs/inspector";
 
 const canvas = document.getElementById("main-scene");
 const engine = new BABYLON.Engine(canvas);
@@ -134,9 +136,23 @@ const createScene = async () => {
 		null, // null or "" imports all mesh, else looks for specific
 		"/public/assets/",
 		"Cow.gltf",
-		scene
+		scene,
+		(meshes, particleSystems, skeletons, animationGroups) => {
+			const cow = meshes[0];
+			cow.scaling = new BABYLON.Vector3(0.25, 0.25, 0.25);
+			animationGroups[2].play(true);
+		}
 	);
 
+	BABYLON.SceneLoader.ImportMeshAsync(
+		null, // null or "" imports all mesh, else looks for specific
+		"/public/assets/",
+		"Cow.gltf",
+		scene
+	).then((result) => {
+		const animatedGroups = result.animationGroups;
+		animatedGroups[3].play(true);
+	});
 
 	/* Debugging tools */
 	const utilityLayer = new BABYLON.UtilityLayerRenderer(scene);
@@ -266,6 +282,18 @@ const createScene = async () => {
 		}
 	};
 
+	/* Sounds */
+	const bgMusic = new BABYLON.Sound(
+		"aSong",
+		"/public/assets/LikeIDo.mp3",
+		scene,
+		null,
+		{
+			loop: true,
+			autoplay: true,
+		}
+	);
+
 	return scene;
 };
 
@@ -275,6 +303,7 @@ mainScene.then(
 		engine.runRenderLoop(function () {
 			if (scene) {
 				scene.render();
+				scene.debugLayer.show();
 			}
 		});
 	},
