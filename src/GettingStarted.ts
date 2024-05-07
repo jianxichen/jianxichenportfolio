@@ -2,8 +2,22 @@ import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Debug/debugLayer";
 
-const canvas = <HTMLCanvasElement> document.getElementById("main-scene");
+const canvas = <HTMLCanvasElement>document.getElementById("main-scene");
 const engine = new BABYLON.Engine(canvas);
+
+/* Loading screen */
+function CustomLoadingScreen(/* variables needed, for example:*/ text) {
+	//init the loader
+	this.loadingUIText = text;
+}
+CustomLoadingScreen.prototype.displayLoadingUI = function () {
+	alert(this.loadingUIText);
+};
+CustomLoadingScreen.prototype.hideLoadingUI = function () {
+	alert("Loaded!");
+};
+engine.loadingScreen = new CustomLoadingScreen("loading");
+engine.displayLoadingUI();
 
 const createScene = async () => {
 	const scene = new BABYLON.Scene(engine);
@@ -66,20 +80,20 @@ const createScene = async () => {
 		radius = 10;
 	const arcCam = new BABYLON.ArcRotateCamera(
 		"armCamera",
-		alpha, // initial rotation around y-axis
-		beta, // initial rotation around x/z-axis
+		alpha, // rotation around y-axis
+		beta, // angle from y-axis
 		radius, // initial distance from given cords
-		BABYLON.Vector3.Zero(), // target cords for camera to face
+		new BABYLON.Vector3(0, 2, 0), // target cords for camera to face
 		scene
 	);
-	arcCam.attachControl(true);
+	arcCam.attachControl(false);
 	// arcCam.setPosition(new BABYLON.Vector3(0,0,-50)); // overrides alpha, beta, radi
 	// Y-axis (left-right) rotate restrictions
-	arcCam.upperAlphaLimit = Math.PI / 2;
-	arcCam.lowerAlphaLimit = (-Math.PI * 3) / 2;
+	// arcCam.upperAlphaLimit = Math.PI / 2;
+	// arcCam.lowerAlphaLimit = (-Math.PI * 3) / 2;
 	// X/Z-axis (up-down) rotate restrictions
-	arcCam.upperBetaLimit = Math.PI;
-	arcCam.lowerBetaLimit = 0;
+	// arcCam.upperBetaLimit = Math.PI;
+	// arcCam.lowerBetaLimit = 0;
 	// Zooming restrictions
 	arcCam.lowerRadiusLimit = 5;
 	arcCam.upperRadiusLimit = 20;
@@ -103,9 +117,7 @@ const createScene = async () => {
 	sphereMat.emissiveColor = new BABYLON.Color3(1, 0, 0); // sets color of object w/o light
 	sphereMat.alpha = 1; // opacity
 	sphereMat.diffuseTexture = new BABYLON.Texture("/public/assets/wood.jpg"); // texture req. light
-	sphereMat.emissiveTexture = new BABYLON.Texture(
-		"/public/assets/wood.jpg"
-	); // no req. light
+	sphereMat.emissiveTexture = new BABYLON.Texture("/public/assets/wood.jpg"); // no req. light
 	sphere.material = sphereMat;
 	shapeWithGizmo = sphere;
 
@@ -133,7 +145,7 @@ const createScene = async () => {
 	/* Importing mesh */
 	BABYLON.SceneLoader.ImportMesh(
 		null, // null or "" imports all mesh, else looks for specific
-		"/public/assets/",
+		"/public/assets/models/",
 		"Cow.gltf",
 		scene,
 		(meshes, particleSystems, skeletons, animationGroups) => {
@@ -190,24 +202,26 @@ const createScene = async () => {
 	texture.vOffset = 0.5; // vertical texture offset
 	texture.uScale = 1; // horizontal scale texture
 	texture.vScale = 1; // vertical scale texture
-	grndHgtMat.diffuseTexture = texture
+	grndHgtMat.diffuseTexture = texture;
 	groundHeightMap.material = grndHgtMat;
 	groundHeightMap.material.wireframe = true;
 
 	/* Text */
-	// const spellFont = await (
-	// 	await fetch("/public/assets/First_Order_Plain_Regular.json")
-	// ).json();
-	// const sampleText = new BABYLON.MeshBuilder.CreateText(
-	// 	"aText",
-	// 	"Textual text",
-	// 	spellFont,
-	// 	{
-	// 		size: 2,
-	// 		depth: 0.1,
-	// 		resolution: 100,
-	// 	}
-	// );
+	const spellFont = await (
+		await fetch("/public/assets/First_Order_Plain_Regular.json")
+	).json();
+	const sampleText = BABYLON.MeshBuilder.CreateText(
+		"aText",
+		"Unmute music then\nclick          sphere",
+		spellFont,
+		{
+			size: 1,
+			depth: 0.1,
+			resolution: 100,
+		},
+		scene
+	);
+	sampleText!.setAbsolutePosition(new BABYLON.Vector3(0, 3, 0));
 
 	/* Shadows */
 	let shadowQuality = 1024;
@@ -271,7 +285,48 @@ const createScene = async () => {
 	// const initialFrame = 0, finalFrame = 60;
 	// scene.beginAnimation(box, initialFrame, finalFrame, false);
 
+	const keyframes = [
+		{
+			frame: 0,
+			value: alpha,
+		},
+		{
+			frame: 480,
+			value: (5 * Math.PI) / 2,
+		},
+	];
+	const cameraSpinAnimate = new BABYLON.Animation(
+		"cameraSpinAnimate",
+		"alpha",
+		15,
+		BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+		BABYLON.Animation.ANIMATIONLOOPMODE_YOYO
+	);
+	cameraSpinAnimate.setKeys(keyframes);
+	scene.beginAnimation(arcCam, 0, 480, true);
+
+	const keyframesUpDown = [
+		{
+			frame: 0,
+			value: beta,
+		},
+		{
+			frame: 30,
+			value: Math.PI / 2,
+		},
+	];
+	const cameraUpDownAnimate = new BABYLON.Animation(
+		"cameraUpDownAnimate",
+		"beta",
+		15,
+		BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+		BABYLON.Animation.ANIMATIONLOOPMODE_YOYO
+	);
+	cameraUpDownAnimate.setKeys(keyframesUpDown);
+	arcCam.animations = [cameraUpDownAnimate, cameraSpinAnimate];
+
 	/* Action/Mouse-Keyboard events */
+	let spinning = false;
 	scene.onPointerDown = () => {
 		const hit = scene.pick(scene.pointerX, scene.pointerY);
 
@@ -279,7 +334,14 @@ const createScene = async () => {
 			const r = Math.random(),
 				g = Math.random(),
 				b = Math.random();
-			(<BABYLON.StandardMaterial> hit.pickedMesh.material).emissiveColor = new BABYLON.Color3(r, g, b);
+			(<BABYLON.StandardMaterial>hit.pickedMesh.material).emissiveColor =
+				new BABYLON.Color3(r, g, b);
+
+			if (!spinning) {
+				spinning = true;
+				scene.beginAnimation(arcCam, 0, 480, true);
+				sampleText?.dispose();
+			}
 		}
 	};
 
@@ -295,6 +357,7 @@ const createScene = async () => {
 		}
 	);
 
+	engine.hideLoadingUI();
 	return scene;
 };
 
@@ -303,9 +366,9 @@ var mainScene = await createScene();
 engine.runRenderLoop(() => {
 	mainScene.render();
 	// No need to import inspector library
-	mainScene.debugLayer.show({
-		embedMode: true,
-	});
+	// mainScene.debugLayer.show({
+	// 	embedMode: true,
+	// });
 });
 
 window.addEventListener("resize", () => {
