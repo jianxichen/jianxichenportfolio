@@ -1,14 +1,12 @@
 import * as BABYLON from "@babylonjs/core";
+import * as SceneTracker from "./ActiveSceneTracker"
 
 export class SushiOrderScene {
 	scene: BABYLON.Scene;
 	constructor(
-		private engine: BABYLON.Engine,
-		private scenes: BABYLON.Scene[],
+		activeScene: SceneTracker.ActiveSceneTracker
 	) {
-		const scene = new BABYLON.Scene(engine);
-		this.scene = scene;
-		scenes[CONSTANTS.ActiveSceneEnum.MAIN] = scene;
+		this.scene = activeScene.createScene();
 	}
 	async showLoadingAssets() {
         this.scene.createDefaultCameraOrLight(true, false, true);
