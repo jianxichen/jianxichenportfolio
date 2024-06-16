@@ -18,6 +18,10 @@ export class ActiveSceneTracker {
 		this._canvas = <HTMLCanvasElement>document.getElementById("main-scene");
 		this._engine = new BABYLON.Engine(this.canvas);
 		this._scenes = new Map();
+
+		window.addEventListener("resize", () => {
+			this._engine.resize();
+		});
 	}
 
 	createScene() {
