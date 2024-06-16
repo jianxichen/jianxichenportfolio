@@ -1,13 +1,18 @@
 import * as BABYLON from "@babylonjs/core";
-import * as SceneTracker from "./ActiveSceneTracker"
+import "@babylonjs/loaders/glTF";
+import "@babylonjs/loaders/OBJ";
 
-export class ShipLoading {
-	scene: BABYLON.Scene;
-	constructor(
-		activeScene: SceneTracker.ActiveSceneTracker
-	) {
+import * as SceneTracker from "../common/ActiveSceneTracker"
+import { IScene } from "../common/SceneInterface"
+
+export class ShipLoading implements IScene{
+	private _scene: BABYLON.Scene;
+
+	constructor(activeScene: SceneTracker.ActiveSceneTracker) {
 		this.scene = activeScene.createScene();
+		activeScene.addScene(SceneTracker.ActiveSceneEnum.LOADING, this.scene);
 	}
+	
 	showLoadingAssets() {
 		this.scene.createDefaultCameraOrLight(true, false, true);
 		const sphere = BABYLON.MeshBuilder.CreateSphere(
@@ -40,5 +45,12 @@ export class ShipLoading {
 		async () => {
 			this.scene.dispose();
 		};
+	}
+
+	public get scene(): BABYLON.Scene {
+		return this._scene;
+	}
+	public set scene(value: BABYLON.Scene) {
+		this._scene = value;
 	}
 }

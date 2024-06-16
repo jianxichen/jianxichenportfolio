@@ -1,11 +1,13 @@
 import * as BABYLON from "@babylonjs/core";
-import * as SceneTracker from "./ActiveSceneTracker"
+import "@babylonjs/loaders/glTF";
+import "@babylonjs/loaders/OBJ";
 
-export class SushiOrderScene {
+import * as SceneTracker from "../common/ActiveSceneTracker"
+import { IScene } from "../common/SceneInterface"
+
+export class SushiOrderScene implements IScene{ 
 	scene: BABYLON.Scene;
-	constructor(
-		activeScene: SceneTracker.ActiveSceneTracker
-	) {
+	constructor(activeScene: SceneTracker.ActiveSceneTracker) {
 		this.scene = activeScene.createScene();
 	}
 	async showLoadingAssets() {
