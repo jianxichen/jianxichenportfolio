@@ -2,42 +2,21 @@ import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/loaders/OBJ";
 
-import * as SceneTracker from "../common/ActiveSceneTracker"
-import { IScene } from "../common/SceneInterface"
+import * as SceneTracker from "../common/ActiveSceneTracker";
+import { IScene } from "../common/SceneInterface";
 
-export class ShipLoading implements IScene{
+export class ShipLoading implements IScene {
 	private _scene: BABYLON.Scene;
 
 	constructor(activeScene: SceneTracker.ActiveSceneTracker) {
 		this.scene = activeScene.createScene();
 		activeScene.addScene(SceneTracker.ActiveSceneEnum.LOADING, this.scene);
 	}
-	
+
 	showLoadingAssets() {
-		this.scene.createDefaultCameraOrLight(true, false, true);
-		const sphere = BABYLON.MeshBuilder.CreateSphere(
-			"aSphere",
-			{
-				segments: 10,
-				diameter: 1,
-			},
-			this.scene
-		);
-		sphere.position = new BABYLON.Vector3(0, 0, 0);
-		const sphereMat = new BABYLON.StandardMaterial("sphereMat");
-		sphereMat.diffuseColor = new BABYLON.Color3(0, 1, 0); // sets color of object in light
-		sphereMat.specularColor = new BABYLON.Color3(1, 0, 1); // sets color of light spot
-		sphereMat.ambientColor = new BABYLON.Color3(1, 1, 0); // sets max possible ambient color
-		this.scene.ambientColor = new BABYLON.Color3(1, 0, 0); // sets ambience color in scene
-		sphereMat.emissiveColor = new BABYLON.Color3(1, 0, 0); // sets color of object w/o light
-		sphereMat.alpha = 1; // opacity
-		sphereMat.diffuseTexture = new BABYLON.Texture(
-			"/public/assets/wood.jpg"
-		); // texture req. light
-		sphereMat.emissiveTexture = new BABYLON.Texture(
-			"/public/assets/wood.jpg"
-		); // no req. light
-		sphere.material = sphereMat;
+		this.setUpCamera();
+		this.setUpLight();
+		this.setUpBoat();
 	}
 
 	hideLoadingAssets() {
@@ -45,6 +24,56 @@ export class ShipLoading implements IScene{
 		async () => {
 			this.scene.dispose();
 		};
+	}
+
+	private setUpCamera() {
+		let alpha = 0,
+			beta = (Math.PI * 9) / 20,
+			radius = 3;
+		const arcCam = new BABYLON.ArcRotateCamera(
+			"armCamera",
+			alpha, // rotation around y-axis
+			beta, // angle from y-axis
+			radius, // initial distance from given cords
+			new BABYLON.Vector3(0, 0, 0), // target cords for camera to face
+			this.scene
+		);
+		arcCam.attachControl(false);
+		// arcCam.setPosition(new BABYLON.Vector3(0,0,-50)); // overrides alpha, beta, radi
+		// Y-axis (left-right) rotate restrictions
+		// arcCam.upperAlphaLimit = Math.PI / 2;
+		// arcCam.lowerAlphaLimit = (-Math.PI * 3) / 2;
+		// X/Z-axis (up-down) rotate restrictions
+		// arcCam.upperBetaLimit = Math.PI;
+		// arcCam.lowerBetaLimit = 0;
+		// Zooming restrictions
+		arcCam.lowerRadiusLimit = 3;
+		arcCam.upperRadiusLimit = 3;
+
+		return arcCam;
+	}
+
+	private setUpLight() {
+		const directionalLight = new BABYLON.DirectionalLight(
+			"directionalLight",
+			new BABYLON.Vector3(-5, -5, 5), // light ray = origin to cordinate
+			this.scene
+		);
+		directionalLight.intensity = 1;
+		return directionalLight;
+	}
+
+	private setUpBoat() {
+		BABYLON.SceneLoader.ImportMesh(
+			null, // null or "" imports all mesh, else looks for specific
+			"/public/assets/models/ships/",
+			"Boat.obj",
+			this.scene,
+			(meshes, particleSystems, skeletons, animationGroups) => {
+				const boat = meshes[0];
+				// TODO need to add animation keyframes
+			}
+		);
 	}
 
 	public get scene(): BABYLON.Scene {

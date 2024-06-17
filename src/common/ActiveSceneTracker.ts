@@ -14,10 +14,10 @@ export class ActiveSceneTracker {
 	private _scenes: Map<ActiveSceneEnum, BABYLON.Scene>;
 
 	constructor() {
-		this._activeScene = ActiveSceneEnum.LOADING;
-		this._canvas = <HTMLCanvasElement>document.getElementById("main-scene");
-		this._engine = new BABYLON.Engine(this.canvas);
-		this._scenes = new Map();
+		this.activeScene = ActiveSceneEnum.LOADING;
+		this.canvas = <HTMLCanvasElement>document.getElementById("main-scene");
+		this.engine = new BABYLON.Engine(this.canvas);
+		this.scenes = new Map();
 
 		window.addEventListener("resize", () => {
 			this._engine.resize();
