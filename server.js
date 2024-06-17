@@ -1,4 +1,4 @@
-import path from "path";
+import * as path from 'path';
 import { fileURLToPath } from "url";
 import fastifyStatic from "@fastify/static";
 import Fastify from "fastify";
