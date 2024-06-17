@@ -14,9 +14,10 @@ export class ShipLoading implements IScene {
 	}
 
 	showLoadingAssets() {
-		this.setUpCamera();
-		this.setUpLight();
-		this.setUpBoat();
+		this.setupCamera();
+		this.setupLight();
+		this.setupBoat();
+		this.setupWaves();
 	}
 
 	hideLoadingAssets() {
@@ -26,7 +27,7 @@ export class ShipLoading implements IScene {
 		};
 	}
 
-	private setUpCamera() {
+	private setupCamera() {
 		let alpha = 0,
 			beta = (Math.PI * 9) / 20,
 			radius = 3;
@@ -53,7 +54,7 @@ export class ShipLoading implements IScene {
 		return arcCam;
 	}
 
-	private setUpLight() {
+	private setupLight() {
 		const directionalLight = new BABYLON.DirectionalLight(
 			"directionalLight",
 			new BABYLON.Vector3(-5, -5, 5), // light ray = origin to cordinate
@@ -63,7 +64,7 @@ export class ShipLoading implements IScene {
 		return directionalLight;
 	}
 
-	private setUpBoat() {
+	private setupBoat() {
 		BABYLON.SceneLoader.ImportMesh(
 			null, // null or "" imports all mesh, else looks for specific
 			"/public/assets/models/ships/",
@@ -76,9 +77,24 @@ export class ShipLoading implements IScene {
 		);
 	}
 
+	private setupWaves() {
+		const wavesSpriteManager = new BABYLON.SpriteManager(
+			"wavesSpriteManager",
+			"/public/assets/waves.png",
+			2000,
+			{ width: 10, height: 10 },
+			this.scene
+		);
+		const waveSprite = new BABYLON.Sprite("waves", wavesSpriteManager);
+		waveSprite.height = 20;
+		waveSprite.width = 20;
+		waveSprite.position = new BABYLON.Vector3(0, 0, 0);
+	}
+
 	public get scene(): BABYLON.Scene {
 		return this._scene;
 	}
+
 	public set scene(value: BABYLON.Scene) {
 		this._scene = value;
 	}
