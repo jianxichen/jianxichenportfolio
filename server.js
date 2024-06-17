@@ -51,7 +51,6 @@ fastify.get("/", function (request, reply) {
 });
 
 // Run the server and report out to the logs
-let port = process.env.PORT != null ? "0.0.0.0" : "127.0.0.1";
 fastify.listen(
 	{
 		port: process.env.PORT || 8080,
