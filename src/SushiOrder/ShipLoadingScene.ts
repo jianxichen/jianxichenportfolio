@@ -39,18 +39,6 @@ export class ShipLoading implements IScene {
 			new BABYLON.Vector3(0, 0, 0), // target cords for camera to face
 			this.scene
 		);
-		arcCam.attachControl(false);
-		// arcCam.setPosition(new BABYLON.Vector3(0,0,-50)); // overrides alpha, beta, radi
-		// Y-axis (left-right) rotate restrictions
-		// arcCam.upperAlphaLimit = Math.PI / 2;
-		// arcCam.lowerAlphaLimit = (-Math.PI * 3) / 2;
-		// X/Z-axis (up-down) rotate restrictions
-		// arcCam.upperBetaLimit = Math.PI;
-		// arcCam.lowerBetaLimit = 0;
-		// Zooming restrictions
-		arcCam.lowerRadiusLimit = 3;
-		arcCam.upperRadiusLimit = 3;
-
 		return arcCam;
 	}
 
@@ -73,6 +61,7 @@ export class ShipLoading implements IScene {
 			(meshes, particleSystems, skeletons, animationGroups) => {
 				const boat = meshes[0];
 				// TODO need to add animation keyframes
+				boat.scaling = new BABYLON.Vector3(3,3,3);
 			}
 		);
 	}
@@ -81,14 +70,13 @@ export class ShipLoading implements IScene {
 		const wavesSpriteManager = new BABYLON.SpriteManager(
 			"wavesSpriteManager",
 			"/public/assets/waves.png",
-			2000,
-			{ width: 10, height: 10 },
+			1,
+			{ width: 640, height: 320 },
 			this.scene
 		);
 		const waveSprite = new BABYLON.Sprite("waves", wavesSpriteManager);
-		waveSprite.height = 20;
-		waveSprite.width = 20;
-		waveSprite.position = new BABYLON.Vector3(0, 0, 0);
+		waveSprite.size = .8;
+		waveSprite.position = new BABYLON.Vector3(.5, .005, 0);
 	}
 
 	public get scene(): BABYLON.Scene {
