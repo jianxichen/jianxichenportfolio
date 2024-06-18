@@ -18,9 +18,11 @@ export class ShipLoading implements IScene {
 		this.setupLight();
 		this.setupBoat();
 		this.setupWaves();
+		this.setupText();
 	}
 
 	hideLoadingAssets() {
+		// TODO not done
 		// changes active scene to content
 		async () => {
 			this.scene.dispose();
@@ -34,7 +36,7 @@ export class ShipLoading implements IScene {
 		const arcCam = new BABYLON.ArcRotateCamera(
 			"armCamera",
 			alpha, // rotation around y-axis
-			beta, // angle from y-axis
+			beta, // updown angle x-z plane
 			radius, // initial distance from given cords
 			new BABYLON.Vector3(0, 0, 0), // target cords for camera to face
 			this.scene
@@ -61,7 +63,15 @@ export class ShipLoading implements IScene {
 			(meshes, particleSystems, skeletons, animationGroups) => {
 				const boat = meshes[0];
 				// TODO need to add animation keyframes
-				boat.scaling = new BABYLON.Vector3(3,3,3);
+				boat.scaling = new BABYLON.Vector3(1.5, 1.5, 1.5);
+				boat.rotation.x = -Math.PI / 100;
+
+				this.scene.registerBeforeRender(() => {
+					// Bobble boat up down
+					boat.position.y = Math.sin(Date.now() / 1000) / 20 + 1 / 20;
+					// Boat sways front and back
+					boat.rotation.x = -Math.sin(Date.now() / 1000) / 20;
+				});
 			}
 		);
 	}
@@ -75,8 +85,37 @@ export class ShipLoading implements IScene {
 			this.scene
 		);
 		const waveSprite = new BABYLON.Sprite("waves", wavesSpriteManager);
-		waveSprite.size = .8;
-		waveSprite.position = new BABYLON.Vector3(.5, .005, 0);
+		waveSprite.size = 1;
+		waveSprite.position = new BABYLON.Vector3(0.5, 0, 0);
+
+		this.scene.registerBeforeRender(() => {
+			waveSprite.position.y = Math.sin(Date.now() / 1000) / 40;
+			waveSprite.angle = Math.sin(Date.now() / 1000) / 40;
+		});
+	}
+
+	private async setupText() {
+		const font = await (
+			await fetch("/public/assets/To_Japan_Regular.json")
+		).json();
+		const loadingText = BABYLON.MeshBuilder.CreateText(
+			"loading",
+			"Loading \n *in development",
+			font,
+			{
+				size: 0.25,
+				depth: 0.000001,
+				resolution: 100,
+			},
+			this.scene
+		)!;
+		loadingText.rotation.y = -Math.PI / 2;
+		loadingText.position = new BABYLON.Vector3(0, 0.25, 0);
+
+		// Make the periods dynamic
+		this.scene.registerBeforeRender(() => {
+			// loadingText.
+		});
 	}
 
 	public get scene(): BABYLON.Scene {
