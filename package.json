@@ -32,7 +32,7 @@
 	},
 	"nodemonConfig": {
 		"ignore": [
-			"/public/scripts/*"
+			"/public/*"
 		],
 		"events": {
 			"exit": "npm run build"

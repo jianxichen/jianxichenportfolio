@@ -1,4 +1,6 @@
 import * as BABYLON from "@babylonjs/core";
+import "@babylonjs/core/Debug/debugLayer";
+import "@babylonjs/inspector";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/loaders/OBJ";
 
@@ -11,12 +13,15 @@ export class ShipLoading implements IScene {
 	constructor(activeScene: SceneTracker.ActiveSceneTracker) {
 		this.scene = activeScene.createScene();
 		activeScene.addScene(SceneTracker.ActiveSceneEnum.LOADING, this.scene);
+		this.scene.debugLayer.show({
+			embedMode: true,
+		});
 	}
 
 	showLoadingAssets() {
 		this.setupCamera();
 		this.setupLight();
-		this.setupBoat();
+		this.setupMeshes();
 		this.setupWaves();
 		this.setupText();
 		this.setupBackground();
@@ -42,6 +47,7 @@ export class ShipLoading implements IScene {
 			new BABYLON.Vector3(0, 0, 0), // target cords for camera to face
 			this.scene
 		);
+		arcCam.attachControl()
 	}
 
 	private setupLight() {
@@ -60,7 +66,8 @@ export class ShipLoading implements IScene {
 		directionalLight2.intensity = 1;
 	}
 
-	private setupBoat() {
+	private setupMeshes() {
+		// Boat
 		BABYLON.SceneLoader.ImportMesh(
 			null, // null or "" imports all mesh, else looks for specific
 			"/public/assets/models/ships/",
@@ -68,20 +75,87 @@ export class ShipLoading implements IScene {
 			this.scene,
 			(meshes, particleSystems, skeletons, animationGroups) => {
 				const boat = meshes[0];
-				// TODO need to add animation keyframes
 				boat.scaling = new BABYLON.Vector3(1.5, 1.5, 1.5);
 				boat.rotation.x = -Math.PI / 100;
 
+				const boatOffsetY = 0;
 				this.scene.registerBeforeRender(() => {
-					// Bobble boat up down
-					boat.position.y = Math.sin(Date.now() / 1000) / 20 + 1 / 20;
-					// Boat sways front and back
+					// Bobble up down
+					boat.position.y =
+						Math.sin(Date.now() / 1000) / 20 + boatOffsetY;
+					// Sways front and back
 					boat.rotation.x = -Math.sin(Date.now() / 1000) / 20;
 				});
 
-				const loadTxtLight = this.scene.getLightByName("directionalLight2ForText")!;
-				meshes.forEach(mesh => {
+				const loadTxtLight = this.scene.getLightByName(
+					"directionalLight2ForText"
+				)!;
+				meshes.forEach((mesh) => {
 					loadTxtLight.excludedMeshes.push(mesh);
+				});
+			}
+		);
+
+		// Shiba
+		BABYLON.SceneLoader.ImportMesh(
+			"RootNode", // null or "" imports all mesh, else looks for specific
+			"/public/assets/models/shiba/",
+			"scene.gltf",
+			this.scene,
+			(meshes, particleSystems, skeletons, animationGroups) => {
+				const dogMesh = meshes[0]
+				dogMesh.name = "shiba" + dogMesh.name;
+					const dogScaling = 0.5;
+					dogMesh.scaling = new BABYLON.Vector3(
+						dogScaling,
+						dogScaling,
+						dogScaling
+					);
+					dogMesh.position.z = -0.25;
+					// dogMesh.rotation.y = 20;
+
+					const dogOffsetY = 0.4;
+					this.scene.registerBeforeRender(() => {
+						// Bobble up down
+						dogMesh.position.y =
+							Math.sin(Date.now() / 1000) / 20 + dogOffsetY;
+					});
+
+					const loadTxtLight = this.scene.getLightByName(
+						"directionalLight2ForText"
+					)!;
+					loadTxtLight.excludedMeshes.push(dogMesh);
+			}
+		);
+
+		// Clouds
+		BABYLON.SceneLoader.ImportMesh(
+			"Cloud_1", // null or "" imports all mesh, else looks for specific
+			"/public/assets/models/lotsofanimals/",
+			"scene.gltf",
+			this.scene,
+			(meshes, particleSystems, skeletons, animationGroups) => {
+				meshes.forEach((cloudMesh) => {
+					cloudMesh.name = "cloud" + cloudMesh.name;
+					const cloudScaling = 5000;
+					cloudMesh.scaling = new BABYLON.Vector3(
+						cloudScaling,
+						cloudScaling,
+						cloudScaling
+					);
+					cloudMesh.position.z = -0.25;
+
+					const dogOffsetY = 0.5;
+					this.scene.registerBeforeRender(() => {
+						// Bobble up down
+						cloudMesh.position.y =
+							Math.sin(Date.now() / 1000) / 20 + dogOffsetY;
+					});
+
+					const loadTxtLight = this.scene.getLightByName(
+						"directionalLight2ForText"
+					)!;
+					loadTxtLight.excludedMeshes.push(cloudMesh);
 				});
 			}
 		);
@@ -104,7 +178,9 @@ export class ShipLoading implements IScene {
 			waveSprite.angle = Math.sin(Date.now() / 1000) / 40;
 		});
 
-		const loadTxtLight = this.scene.getLightByName("directionalLight2ForText")!;
+		const loadTxtLight = this.scene.getLightByName(
+			"directionalLight2ForText"
+		)!;
 		// loadTxtLight.excludeWithLayerMask = wavesSpriteManager.layerMask;
 	}
 

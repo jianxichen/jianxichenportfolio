@@ -1,6 +1,7 @@
 import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Debug/debugLayer";
+import "@babylonjs/inspector";
 
 const canvas = <HTMLCanvasElement>document.getElementById("main-scene");
 const engine = new BABYLON.Engine(canvas);
