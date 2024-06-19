@@ -19,6 +19,7 @@ export class ShipLoading implements IScene {
 		this.setupBoat();
 		this.setupWaves();
 		this.setupText();
+		this.setupBackground();
 	}
 
 	hideLoadingAssets() {
@@ -41,7 +42,6 @@ export class ShipLoading implements IScene {
 			new BABYLON.Vector3(0, 0, 0), // target cords for camera to face
 			this.scene
 		);
-		return arcCam;
 	}
 
 	private setupLight() {
@@ -51,7 +51,13 @@ export class ShipLoading implements IScene {
 			this.scene
 		);
 		directionalLight.intensity = 1;
-		return directionalLight;
+
+		const directionalLight2 = new BABYLON.DirectionalLight(
+			"directionalLight2ForText",
+			new BABYLON.Vector3(-1, 0, 0), // light ray = origin to cordinate
+			this.scene
+		);
+		directionalLight2.intensity = 1;
 	}
 
 	private setupBoat() {
@@ -71,6 +77,11 @@ export class ShipLoading implements IScene {
 					boat.position.y = Math.sin(Date.now() / 1000) / 20 + 1 / 20;
 					// Boat sways front and back
 					boat.rotation.x = -Math.sin(Date.now() / 1000) / 20;
+				});
+
+				const loadTxtLight = this.scene.getLightByName("directionalLight2ForText")!;
+				meshes.forEach(mesh => {
+					loadTxtLight.excludedMeshes.push(mesh);
 				});
 			}
 		);
@@ -92,6 +103,9 @@ export class ShipLoading implements IScene {
 			waveSprite.position.y = Math.sin(Date.now() / 1000) / 40;
 			waveSprite.angle = Math.sin(Date.now() / 1000) / 40;
 		});
+
+		const loadTxtLight = this.scene.getLightByName("directionalLight2ForText")!;
+		// loadTxtLight.excludeWithLayerMask = wavesSpriteManager.layerMask;
 	}
 
 	private async setupText() {
@@ -100,12 +114,17 @@ export class ShipLoading implements IScene {
 		).json();
 		const loadingText = BABYLON.MeshBuilder.CreateText(
 			"loading",
-			"Loading \n *in development",
+			"Loading",
 			font,
 			{
 				size: 0.25,
 				depth: 0.000001,
 				resolution: 100,
+				faceColors: [
+					new BABYLON.Color4(1, 1, 1, 1),
+					new BABYLON.Color4(1, 1, 1, 1),
+					new BABYLON.Color4(1, 1, 1, 1),
+				],
 			},
 			this.scene
 		)!;
@@ -114,8 +133,31 @@ export class ShipLoading implements IScene {
 
 		// Make the periods dynamic
 		this.scene.registerBeforeRender(() => {
-			// loadingText.
+			// loadingText.dispose()
+			// this.scene.addmes
 		});
+	}
+
+	private setupBackground() {
+		var backgroundBox = BABYLON.Mesh.CreateBox(
+			"BackgroundSkybox",
+			500,
+			this.scene,
+			undefined,
+			BABYLON.Mesh.BACKSIDE
+		);
+
+		var backgroundMaterial = new BABYLON.BackgroundMaterial(
+			"backgroundMaterial",
+			this.scene
+		);
+		backgroundMaterial.reflectionTexture = new BABYLON.CubeTexture(
+			"/public/assets/",
+			this.scene
+		);
+		backgroundMaterial.reflectionTexture.coordinatesMode =
+			BABYLON.Texture.SKYBOX_MODE;
+		backgroundBox.material = backgroundMaterial;
 	}
 
 	public get scene(): BABYLON.Scene {
