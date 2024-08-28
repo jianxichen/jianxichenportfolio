@@ -5,7 +5,10 @@ import "@babylonjs/loaders/glTF";
 import "@babylonjs/loaders/OBJ";
 
 import * as SceneTracker from "../common/ActiveSceneTracker";
-import { IScene } from "../common/SceneInterface";
+import {
+	IScene,
+	chunkOutTransformNodesNotMeshes,
+} from "../common/SceneInterface";
 
 export class ShipLoading implements IScene {
 	private _scene: BABYLON.Scene;
@@ -47,7 +50,7 @@ export class ShipLoading implements IScene {
 			new BABYLON.Vector3(0, 0, 0), // target cords for camera to face
 			this.scene
 		);
-		arcCam.attachControl()
+		arcCam.attachControl();
 	}
 
 	private setupLight() {
@@ -60,7 +63,7 @@ export class ShipLoading implements IScene {
 
 		const directionalLight2 = new BABYLON.DirectionalLight(
 			"directionalLight2ForText",
-			new BABYLON.Vector3(-1, 0, 0), // light ray = origin to cordinate
+			new BABYLON.Vector3(-5, 0, 0), // light ray = origin to cordinate
 			this.scene
 		);
 		directionalLight2.intensity = 1;
@@ -103,28 +106,35 @@ export class ShipLoading implements IScene {
 			"scene.gltf",
 			this.scene,
 			(meshes, particleSystems, skeletons, animationGroups) => {
-				const dogMesh = meshes[0]
-				dogMesh.name = "shiba" + dogMesh.name;
-					const dogScaling = 0.5;
-					dogMesh.scaling = new BABYLON.Vector3(
-						dogScaling,
-						dogScaling,
-						dogScaling
-					);
-					dogMesh.position.z = -0.25;
-					// dogMesh.rotation.y = 20;
+				const dogRoot = meshes[0];
 
-					const dogOffsetY = 0.4;
-					this.scene.registerBeforeRender(() => {
-						// Bobble up down
-						dogMesh.position.y =
-							Math.sin(Date.now() / 1000) / 20 + dogOffsetY;
-					});
+				// Unlink meshes from the TransformNode from glTF and remove TransformNodes
+				chunkOutTransformNodesNotMeshes(meshes);
+				dogRoot.getChildMeshes(false).forEach((dogMesh) => {
+					dogMesh.setParent(dogRoot);
+				});
 
-					const loadTxtLight = this.scene.getLightByName(
-						"directionalLight2ForText"
-					)!;
-					loadTxtLight.excludedMeshes.push(dogMesh);
+				dogRoot.name = "shiba" + dogRoot.name;
+				const dogScaling = 0.3;
+				dogRoot.scaling = new BABYLON.Vector3(
+					dogScaling,
+					dogScaling,
+					dogScaling
+				);
+				dogRoot.position.z = -0.25;
+				// dogMesh.rotation.y = 20;
+
+				const dogOffsetY = 0.4;
+				this.scene.registerBeforeRender(() => {
+					// Bobble up down
+					dogRoot.position.y =
+						Math.sin(Date.now() / 1000) / 20 + dogOffsetY;
+				});
+
+				const loadTxtLight = this.scene.getLightByName(
+					"directionalLight2ForText"
+				)!;
+				loadTxtLight.excludedMeshes.push(dogRoot);
 			}
 		);
 
@@ -135,28 +145,27 @@ export class ShipLoading implements IScene {
 			"scene.gltf",
 			this.scene,
 			(meshes, particleSystems, skeletons, animationGroups) => {
-				meshes.forEach((cloudMesh) => {
-					cloudMesh.name = "cloud" + cloudMesh.name;
-					const cloudScaling = 5000;
-					cloudMesh.scaling = new BABYLON.Vector3(
-						cloudScaling,
-						cloudScaling,
-						cloudScaling
-					);
-					cloudMesh.position.z = -0.25;
-
-					const dogOffsetY = 0.5;
-					this.scene.registerBeforeRender(() => {
-						// Bobble up down
-						cloudMesh.position.y =
-							Math.sin(Date.now() / 1000) / 20 + dogOffsetY;
-					});
-
-					const loadTxtLight = this.scene.getLightByName(
-						"directionalLight2ForText"
-					)!;
-					loadTxtLight.excludedMeshes.push(cloudMesh);
+				const cloudRoot = meshes[0];
+				cloudRoot.rotation = BABYLON.Vector3.Zero();
+				cloudRoot.position = BABYLON.Vector3.Zero();
+				cloudRoot.name = "cloud" + cloudRoot.name;
+				// Unlink meshes from the TransformNode from glTF and remove TransformNodes
+				chunkOutTransformNodesNotMeshes(meshes);
+				cloudRoot.getChildMeshes(false).forEach((cloudMesh) => {
+					cloudMesh.setParent(cloudRoot);
+					cloudMesh.position = new BABYLON.Vector3(0, 0, 0);
+					cloudMesh.rotation = new BABYLON.Vector3(0, 0, 0);
 				});
+				for (let index = 0; index < 3; index++) {
+					cloudRoot.addChild(meshes[1].clone(`cloudClone${index}`, cloudRoot)!, true);
+				}
+
+				const cloudScaling = .25;
+				cloudRoot.scaling = new BABYLON.Vector3(
+					cloudScaling,
+					cloudScaling,
+					cloudScaling
+				);
 			}
 		);
 	}
@@ -189,7 +198,7 @@ export class ShipLoading implements IScene {
 			await fetch("/public/assets/To_Japan_Regular.json")
 		).json();
 		const loadingText = BABYLON.MeshBuilder.CreateText(
-			"loading",
+			"loadingTxt",
 			"Loading",
 			font,
 			{
